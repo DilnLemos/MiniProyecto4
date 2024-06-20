@@ -43,4 +43,55 @@ public class Inventario {
             e.printStackTrace();
         }
     }
+     /**
+     * Método público para agregar un nuevo producto al inventario.
+     * Verifica si el código del producto ya existe en el HashMap antes de agregarlo.
+     * Si el código ya existe, muestra un mensaje de error y no realiza la operación.
+     */
+    public void agregarProducto(Producto producto) {
+        if (!productos.containsKey(producto.getCodigo())) {
+            productos.put(producto.getCodigo(), producto);
+            guardarInventario();
+            System.out.println("El producto '" + producto.getNombre() + "' fue agregado exitosamente.");
+        } else {
+            System.err.println("No se puede agregar el producto '" + producto.getNombre() + "'. Ya existe un producto con el mismo código.");
+        }
+    }
+
+    //Método público para buscar un producto por su código.
+    public Producto buscarProducto(String codigo) {
+        return productos.get(codigo);
+    }
+
+    //Método público para actualizar la cantidad de un producto en el inventario.
+ 
+    public void actualizarProducto(String codigo, int nuevaCantidad) {
+        Producto producto = productos.get(codigo);
+        if (producto != null) {
+            producto.setCantidad(nuevaCantidad);
+            guardarInventario();
+        }
+    }
+
+    //Método público para eliminar un producto del inventario.
+ 
+    public void eliminarProducto(String codigo) {
+        productos.remove(codigo);
+        guardarInventario();
+    }
+
+    /**
+     * Método privado para guardar el inventario en el archivo "Almacen.txt".
+     * Sobrescribe el archivo con los productos actuales del HashMap.
+     */
+    private void guardarInventario() {
+        try (RandomAccessFile raf = new RandomAccessFile(ARCHIVO_INVENTARIO, "rw")) {
+            raf.setLength(0);  // Limpiar el archivo antes de escribir
+            for (Producto producto : productos.values()) {
+                raf.writeBytes(String.format("%s,%s,%d%n", producto.getCodigo(), producto.getNombre(), producto.getCantidad()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
