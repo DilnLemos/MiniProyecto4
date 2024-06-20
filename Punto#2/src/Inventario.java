@@ -1,53 +1,37 @@
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.HashMap;
 
 public class Inventario {
     private HashMap<String, Producto> productos;
     private static final String ARCHIVO_INVENTARIO = "Almacen.txt";
-    private static final int LONGITUD_LINEA = 50; // Longitud máxima de una línea en el archivo (ajustar según necesidad)
+    private static final String RUTA_ARCHIVO = System.getProperty("user.dir") + File.separator + ARCHIVO_INVENTARIO;
+    private static final int LONGITUD_LINEA = 50;
 
-    /**
-     * Constructor de la clase Inventario.
-     * Inicializa el HashMap de productos y carga el inventario desde el archivo "Almacen.txt".
-     */
     public Inventario() {
         this.productos = new HashMap<>();
         cargarInventario();
     }
 
-    /**
-     * Método privado para cargar el inventario desde el archivo "Almacen.txt".
-     * Lee cada línea del archivo, crea un Producto y lo añade al HashMap de productos.
-     * Si una línea no tiene el formato correcto, se imprime un mensaje de error.
-     */
     private void cargarInventario() {
-        try (RandomAccessFile File = new RandomAccessFile(ARCHIVO_INVENTARIO, "r")) {
-            long numLineas = File.length() / LONGITUD_LINEA;
-            for (int i = 0; i < numLineas; i++) {
-                File.seek(i * LONGITUD_LINEA);
-                String linea = File.readLine();
-                if (linea != null) {
-                    String[] partes = linea.split(",");
-                    if (partes.length == 3) {
-                        String codigo = partes[0].trim();
-                        String nombre = partes[1].trim();
-                        int cantidad = Integer.parseInt(partes[2].trim());
-                        productos.put(codigo, new Producto(codigo, nombre, cantidad));
-                    } else {
-                        System.err.println("Error al leer línea del archivo: " + linea);
-                    }
+        try (BufferedReader br = new BufferedReader(new FileReader(RUTA_ARCHIVO))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                String[] partes = linea.split(",");
+                if (partes.length == 3) {
+                    String codigo = partes[0].trim();
+                    String nombre = partes[1].trim();
+                    int cantidad = Integer.parseInt(partes[2].trim());
+                    productos.put(codigo, new Producto(codigo, nombre, cantidad));
+                } else {
+                    System.err.println("Error al leer línea del archivo: " + linea);
                 }
             }
         } catch (IOException | NumberFormatException e) {
+            // Si ocurre un error al cargar, simplemente imprime la excepción
             e.printStackTrace();
         }
     }
-     /**
-     * Método público para agregar un nuevo producto al inventario.
-     * Verifica si el código del producto ya existe en el HashMap antes de agregarlo.
-     * Si el código ya existe, muestra un mensaje de error y no realiza la operación.
-     */
+
     public void agregarProducto(Producto producto) {
         if (!productos.containsKey(producto.getCodigo())) {
             productos.put(producto.getCodigo(), producto);
@@ -58,13 +42,10 @@ public class Inventario {
         }
     }
 
-    //Método público para buscar un producto por su código.
     public Producto buscarProducto(String codigo) {
         return productos.get(codigo);
     }
 
-    //Método público para actualizar la cantidad de un producto en el inventario.
- 
     public void actualizarProducto(String codigo, int nuevaCantidad) {
         Producto producto = productos.get(codigo);
         if (producto != null) {
@@ -73,22 +54,16 @@ public class Inventario {
         }
     }
 
-    //Método público para eliminar un producto del inventario.
- 
     public void eliminarProducto(String codigo) {
         productos.remove(codigo);
         guardarInventario();
     }
 
-    /**
-     * Método privado para guardar el inventario en el archivo "Almacen.txt".
-     * Sobrescribe el archivo con los productos actuales del HashMap.
-     */
     private void guardarInventario() {
-        try (RandomAccessFile raf = new RandomAccessFile(ARCHIVO_INVENTARIO, "rw")) {
-            raf.setLength(0);  // Limpiar el archivo antes de escribir
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(RUTA_ARCHIVO))) {
             for (Producto producto : productos.values()) {
-                raf.writeBytes(String.format("%s,%s,%d%n", producto.getCodigo(), producto.getNombre(), producto.getCantidad()));
+                bw.write(producto.toString());
+                bw.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
