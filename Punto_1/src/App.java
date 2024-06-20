@@ -8,7 +8,9 @@ public class App {
         ArrayList<Estudiante> estudiantes = new ArrayList<>();
         while (true) {
             System.out.println("1. Ingresar datos de estudiantes");
-            System.out.println("0. Salir");
+            System.out.println("2. Calcular promedio de calificaciones");
+           
+            System.out.println("3. Salir");
             int opcion;
             try {
                 opcion = scanner.nextInt();
@@ -22,7 +24,11 @@ public class App {
                 case 1:
                     ingresarEstudiante(scanner, estudiantes);
                     break;
-                case 0:
+                case 2:
+                    calcularPromedio(estudiantes);
+                    break;
+               
+                case 3:
                     System.out.println("Saliendo del programa.");
                     return;
                 default:
@@ -30,7 +36,7 @@ public class App {
             }}}
 
     private static void ingresarEstudiante(Scanner scanner, ArrayList<Estudiante> estudiantes) {
-        System.out.println("\nIngrese los registros de estudiantes (nombre, calificacion), escriba salir para terminar:");
+        System.out.println("\nIngrese los registros de estudiantes (nombre calificacion), escriba salir para terminar:");
 
         while (true) {
             System.out.print("> ");
@@ -39,9 +45,9 @@ public class App {
             if (entrada.equals("salir")) {
                 break;
   }
-            String[] partes = entrada.split(",");
+            String[] partes = entrada.split(" ");
             if (partes.length != 2) {
-                System.out.println("Formato incorrecto debe ser (nombre, calificacion)");
+                System.out.println("Formato incorrecto debe ser (nombre calificacion)");
                 continue;
             }
             String nombre = partes[0];
@@ -60,4 +66,15 @@ public class App {
         }
         System.out.println("Datos de estudiantes ingresados correctamente");
     }
-}
+    private static void calcularPromedio(ArrayList<Estudiante> estudiantes) {
+        if (estudiantes.isEmpty()) {
+            System.out.println("No hay estudiantes ");
+            return;
+        }
+        double sumaCalificaciones = 0;
+        for (Estudiante estudiante : estudiantes) {
+            sumaCalificaciones += estudiante.getCalificacion();
+        }
+        double promedio = sumaCalificaciones / estudiantes.size();
+
+        System.out.println("El promedio de calificaciones es: " + promedio);}}
